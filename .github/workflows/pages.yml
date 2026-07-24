@@ -1,0 +1,38 @@
+# 部署到 GitHub Pages：把 public/ 目录作为静态站点发布。
+# 触发：推送到 main 分支，或手动在 Actions 页面点击 Run workflow。
+# 前置：仓库 Settings → Pages → Build and deployment → Source 选择 "GitHub Actions"。
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # 仅发布前端静态资源(public/)。后端 server/ 不入库、不在此运行。
+          path: public
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

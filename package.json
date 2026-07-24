@@ -1,0 +1,14 @@
+{
+  "name": "english-verse",
+  "version": "0.1.0",
+  "description": "星海 English Verse - 沉浸式 3D 英语学习站",
+  "type": "module",
+  "main": "server/server.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node server/start.js",
+    "seed": "node server/seed.js"
+  }
+}

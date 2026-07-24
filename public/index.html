@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>星海 · English Verse</title>
+  <link rel="stylesheet" href="./css/style.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three.module.js"
+    }
+  }
+  </script>
+</head>
+<body>
+  <canvas id="scene"></canvas>
+  <div class="fx-overlay" aria-hidden="true"></div>
+
+  <!-- 开场星系:太阳系行星 + 名人欢迎 -->
+  <div id="intro">
+    <canvas id="intro-canvas"></canvas>
+    <div id="intro-flash"></div>
+    <div id="planet-labels"></div>
+    <div id="intro-welcome">
+      <div class="intro-kicker">星际向导 · 卡尔·萨根 向地球文明致意</div>
+      <h1 class="intro-title">🌍 欢迎来到地球的世界</h1>
+      <p class="intro-sub">让我们感受一下语言的魅力</p>
+      <p class="intro-quote">"我们都是星尘,偶然学会了言语。"</p>
+      <button id="intro-enter" class="btn primary big">🚀 进入地球村</button>
+      <div class="intro-hint">我们皆为星尘偶然凝成的光，而语言，是光与光彼此辨认的回响。</div>
+    </div>
+  </div>
+
+  <!-- 顶部栏 -->
+  <header id="hud-top">
+    <div class="brand">
+      <span class="brand-mark">✦</span>
+      <span class="brand-name">星海 · English Verse</span>
+    </div>
+    <nav class="actions">
+      <button id="btn-random" class="btn ghost" title="随机捞一首">虚空捞诗</button>
+      <button id="btn-today" class="btn ghost">今日一句</button>
+      <button id="btn-review" class="btn ghost">复习</button>
+      <button id="btn-vocab" class="btn ghost">生词本</button>
+      <button id="btn-fav" class="btn ghost">收藏</button>
+      <button id="btn-stats" class="btn ghost">进度</button>
+      <button id="btn-upload" class="btn ghost" title="创作我的星">✍️ 创作</button>
+      <button id="btn-profile" class="btn ghost" title="我的主页">👤 主页</button>
+      <button id="btn-auth" class="btn primary">登录</button>
+    </nav>
+  </header>
+
+  <!-- 筛选栏 -->
+  <div id="filter-bar">
+    <input id="search-input" type="text" placeholder="🔍 搜索标题 / 原文 / 译文" />
+    <div id="filter-type" class="chip-group"></div>
+    <div id="filter-theme" class="chip-group"></div>
+  </div>
+
+  <!-- 每日一句卡片 -->
+  <div id="daily-card" class="daily-card hidden">
+    <button id="daily-close" class="daily-close">×</button>
+    <div class="daily-label">今日一句</div>
+    <div id="daily-title" class="daily-title"></div>
+    <div id="daily-text" class="daily-text"></div>
+    <button id="daily-open" class="btn primary block">读一读</button>
+  </div>
+
+  <!-- 操作提示 -->
+  <div id="hud-hint">
+    <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 飞行 ·
+    <kbd>拖拽</kbd> 转向 · <kbd>滚轮</kbd> 调速 · <kbd>点击光点</kbd> 读诗
+  </div>
+
+  <div id="tooltip" class="tooltip hidden"></div>
+
+  <!-- 阅读面板 -->
+  <aside id="reader" class="panel right hidden">
+    <button class="panel-close" data-close="reader">×</button>
+    <div id="reader-body"></div>
+  </aside>
+
+  <!-- 侧边面板(生词本 / 收藏 / 复习 / 进度) -->
+  <aside id="side" class="panel left hidden">
+    <button class="panel-close" data-close="side">×</button>
+    <div id="side-body"></div>
+  </aside>
+
+  <!-- 登录 / 注册 -->
+  <div id="auth-modal" class="modal hidden">
+    <div class="modal-card">
+      <button class="panel-close" data-close="auth-modal">×</button>
+      <h2 id="auth-title">登录</h2>
+      <form id="auth-form">
+        <input id="auth-user" type="text" placeholder="用户名" autocomplete="username" />
+        <input id="auth-pass" type="password" placeholder="密码" autocomplete="current-password" />
+        <button type="submit" class="btn primary block" id="auth-submit">登录</button>
+      </form>
+      <p class="auth-switch">
+        <span id="auth-toggle-text">还没有账号?</span>
+        <a href="#" id="auth-toggle">去注册</a>
+      </p>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

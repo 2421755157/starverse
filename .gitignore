@@ -1,0 +1,15 @@
+# 依赖(本项目零运行时依赖,node_modules 仅为本地调试产物,可删除)
+node_modules/
+
+# 运行时数据库(首次启动自动生成,不入库)
+*.db
+*.sqlite
+*.sqlite3
+
+# 日志
+*.log
+server.log
+
+# 临时脚本
+fix_content.mjs
+verify_api.mjs
