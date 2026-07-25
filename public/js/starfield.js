@@ -95,9 +95,9 @@ export function createStarfield(canvas, { onSelect, onHover }) {
 
   // ===================== 满天繁星 · 银河系(逐颗独立闪烁) =====================
   // 三层结构:① 球壳弥散繁星(HALO)  ② 银河盘面旋臂(DISK)  ③ 霓虹亮星(NEON)
-  const STAR_HALO = 16000;   // 均匀铺满整个天球的繁星
-  const STAR_DISK = 12000;   // 银河系盘面(旋臂 + 银心隆起)
-  const NEON = 260;          // 少量高亮霓虹巨星
+  const STAR_HALO = 9000;    // 均匀铺满整个天球的繁星(密度适中,均匀散开)
+  const STAR_DISK = 6500;    // 银河系盘面(旋臂 + 银心隆起)
+  const NEON = 110;          // 少量高亮霓虹巨星
   const starCount = STAR_HALO + STAR_DISK + NEON;
   const starPos = new Float32Array(starCount * 3);
   const starPhase = new Float32Array(starCount);
@@ -116,7 +116,7 @@ export function createStarfield(canvas, { onSelect, onHover }) {
   let p = 0;
   // ① HALO —— 均匀弥散繁星(整片天球都是星)
   for (let i = 0; i < STAR_HALO; i++, p++) {
-    const r = 900 + Math.random() * 2200;
+    const r = 1200 + Math.random() * 2100;   // 拉开最近距离,避免出现过大的星点
     const theta = Math.random() * Math.PI * 2;
     const phi = Math.acos(2 * Math.random() - 1);
     starPos[p * 3] = r * Math.sin(phi) * Math.cos(theta);
@@ -125,7 +125,8 @@ export function createStarfield(canvas, { onSelect, onHover }) {
     starPhase[p] = Math.random() * Math.PI * 2;
     // 冷白偏蓝的微小繁星
     tmpC.setHSL(0.58 + Math.random() * 0.08, 0.35 + Math.random() * 0.35, 0.62 + Math.random() * 0.28);
-    starSize[p] = 1.1 + Math.random() * 2.4;
+    // 真实星等分布:绝大多数是细小微星,亮星稀少(幂律分布)
+    starSize[p] = 0.6 + Math.pow(Math.random(), 2.6) * 2.2;
     starColor[p * 3] = tmpC.r; starColor[p * 3 + 1] = tmpC.g; starColor[p * 3 + 2] = tmpC.b;
   }
   // ② DISK —— 银河盘面 + 旋臂(密集恒星带,营造银河系)
@@ -152,12 +153,12 @@ export function createStarfield(canvas, { onSelect, onHover }) {
     // 银心暖黄 → 外围冷蓝
     const warm = bulge;
     tmpC.setHSL(0.58 - warm * 0.45, 0.5 + warm * 0.3, 0.6 + Math.random() * 0.25);
-    starSize[p] = 1.0 + Math.random() * (1.8 + bulge * 2.5);
+    starSize[p] = 0.6 + Math.pow(Math.random(), 2.2) * (1.4 + bulge * 1.6);
     starColor[p * 3] = tmpC.r; starColor[p * 3 + 1] = tmpC.g; starColor[p * 3 + 2] = tmpC.b;
   }
   // ③ NEON —— 稀疏霓虹巨星(点缀)
   for (let i = 0; i < NEON; i++, p++) {
-    const r = 800 + Math.random() * 2000;
+    const r = 1300 + Math.random() * 1800;
     const theta = Math.random() * Math.PI * 2;
     const phi = Math.acos(2 * Math.random() - 1);
     starPos[p * 3] = r * Math.sin(phi) * Math.cos(theta);
@@ -165,7 +166,7 @@ export function createStarfield(canvas, { onSelect, onHover }) {
     starPos[p * 3 + 2] = r * Math.cos(phi);
     starPhase[p] = Math.random() * Math.PI * 2;
     const c = neonPal[(Math.random() * neonPal.length) | 0];
-    starSize[p] = 3.2 + Math.random() * 5.0;
+    starSize[p] = 2.2 + Math.random() * 2.4;
     starColor[p * 3] = c.r; starColor[p * 3 + 1] = c.g; starColor[p * 3 + 2] = c.b;
   }
   const starGeo = new THREE.BufferGeometry();
@@ -183,8 +184,9 @@ export function createStarfield(canvas, { onSelect, onHover }) {
         float tw = 0.5 + 0.5*sin(uTime*3.0 + aPhase);
         vTw = tw; vColor = aColor;
         vec4 mv = modelViewMatrix * vec4(position,1.0);
-        float s = aSize * (0.6 + 0.9*tw);
-        gl_PointSize = s * (300.0 / -mv.z);
+        float s = aSize * (0.8 + 0.4*tw);
+        // 尺寸封顶:相机靠近时星点不会膨胀成大光斑,保持细腻星空质感
+        gl_PointSize = min(s * (300.0 / -mv.z), 6.5);
         gl_Position = projectionMatrix * mv;
       }
     `,
@@ -192,10 +194,13 @@ export function createStarfield(canvas, { onSelect, onHover }) {
       varying float vTw; varying vec3 vColor;
       void main(){
         vec2 c = gl_PointCoord - 0.5;
-        float d = length(c);
-        float a = smoothstep(0.5, 0.0, d);
-        vec3 col = vColor * (0.5 + 0.9*vTw) + vTw*vTw*0.15;
-        gl_FragColor = vec4(col, a*(0.35 + 0.65*vTw));
+        float d = length(c)*2.0;
+        // 锐利内核 + 微弱光晕:更接近真实星点,而非发糊的光斑
+        float core = smoothstep(0.55, 0.0, d);
+        float halo = smoothstep(1.0, 0.3, d)*0.22;
+        float a = core + halo;
+        vec3 col = vColor * (0.55 + 0.6*vTw) + vTw*vTw*0.1;
+        gl_FragColor = vec4(col, a*(0.4 + 0.6*vTw));
       }
     `
   });
@@ -707,7 +712,7 @@ export function createStarfield(canvas, { onSelect, onHover }) {
     // 星云团缓慢呼吸
     clouds.forEach((cl) => {
       const tw = 0.5 + 0.5 * Math.sin(t * cl.userData.drift + cl.userData.phase);
-      cl.material.opacity = 0.12 + 0.22 * tw;
+      cl.material.opacity = 0.07 + 0.13 * tw;
       const sc = cl.userData.baseScale * (0.92 + 0.12 * tw);
       cl.scale.setScalar(sc);
       cl.position.y += Math.sin(t * 0.2 + cl.userData.phase) * 0.15;

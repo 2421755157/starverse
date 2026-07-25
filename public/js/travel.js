@@ -60,7 +60,31 @@ const QUOTES = [
   { text: '日心说', lang: '科学 · 哥白尼', color: '#a8b6ff' },
   { text: '进化论', lang: '科学 · 达尔文', color: '#ff9ec4' },
   { text: '哈姆\n雷特', lang: '文学 · 莎士比亚', color: '#8fe0e6' },
-  { text: '浮士德', lang: '文学 · 歌德', color: '#ffd9a0' }
+  { text: '浮士德', lang: '文学 · 歌德', color: '#ffd9a0' },
+
+  // 经典诗词 · 名句(逐字竖排,如时光长卷)
+  { text: '床前明月光', lang: '诗词 · 李白', color: '#8fd3ff' },
+  { text: '举头望明月', lang: '诗词 · 李白', color: '#ffd9a0' },
+  { text: '长风破浪会有时', lang: '诗词 · 李白', color: '#9effe6' },
+  { text: '天生我材必有用', lang: '诗词 · 李白', color: '#ffe08a' },
+  { text: '疑是银河落九天', lang: '诗词 · 李白', color: '#35e0ff' },
+  { text: '海内存知己', lang: '诗词 · 王勃', color: '#a8b6ff' },
+  { text: '天涯若比邻', lang: '诗词 · 王勃', color: '#ff9ec4' },
+  { text: '会当凌绝顶', lang: '诗词 · 杜甫', color: '#b6ff9e' },
+  { text: '一览众山小', lang: '诗词 · 杜甫', color: '#8fe0e6' },
+  { text: '海上生明月', lang: '诗词 · 张九龄', color: '#c9a8ff' },
+  { text: '天涯共此时', lang: '诗词 · 张九龄', color: '#8fd3ff' },
+  { text: '欲穷千里目', lang: '诗词 · 王之涣', color: '#ffd9a0' },
+  { text: '更上一层楼', lang: '诗词 · 王之涣', color: '#9effe6' },
+  { text: '但愿人长久', lang: '诗词 · 苏轼', color: '#ff4fd8' },
+  { text: '千里共婵娟', lang: '诗词 · 苏轼', color: '#ffe08a' },
+  { text: '路漫漫其修远兮', lang: '诗词 · 屈原', color: '#35e0ff' },
+  { text: '吾将上下而求索', lang: '诗词 · 屈原', color: '#a8b6ff' },
+  { text: '生如夏花之绚烂', lang: '诗句 · 泰戈尔', color: '#ff9ec4' },
+  { text: 'To be,\nor not\nto be', lang: '诗句 · 莎士比亚', color: '#8fd3ff' },
+  { text: 'Carpe\nDiem', lang: '诗句 · 贺拉斯', color: '#b6ff9e' },
+  { text: 'The road\nnot taken', lang: '诗句 · 弗罗斯特', color: '#9effe6' },
+  { text: 'And miles\nto go before\nI sleep', lang: '诗句 · 弗罗斯特', color: '#c9a8ff' }
 ];
 
   // 第一视角"时光飞船"穿越隧道:背景为科幻银河,可见飞船剪影,
@@ -171,7 +195,9 @@ export function createTravel({ onDone } = {}) {
   // ===================== 竖排名句流光 =====================
   const pool = QUOTES.map(q => {
     const tex = makeVerticalTextTexture(q.text, q.color);
-    return { tex, aspect: tex.image.width / tex.image.height, color: q.color, lang: q.lang };
+    // 行数越多(如整句诗)竖条越长,单字符号保持紧凑,保证每个字都清晰完整
+    const boost = Math.min(1.9, Math.max(1, tex.lineCount / 3.2));
+    return { tex, aspect: tex.image.width / tex.image.height, color: q.color, lang: q.lang, boost };
   });
   const POEM_N = 22;
   const poemSprites = [];
@@ -182,7 +208,7 @@ export function createTravel({ onDone } = {}) {
     const p = pool[k];
     const mat = new THREE.SpriteMaterial({ map: p.tex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0 });
     const s = new THREE.Sprite(mat);
-    const baseH = 120 + Math.random() * 55;       // 竖条高度(更长,完整醒目)
+    const baseH = (120 + Math.random() * 55) * p.boost; // 竖条高度随字数自适应,整句诗完整呈现
     const baseW = baseH * p.aspect;               // 竖条宽度
     s.scale.set(baseW, baseH, 1);
     const angle = Math.random() * Math.PI * 2;
@@ -207,6 +233,7 @@ export function createTravel({ onDone } = {}) {
     const k = (Math.random() * pool.length) | 0;
     const p = pool[k];
     u.poolIdx = k;
+    u.baseH = (120 + Math.random() * 55) * p.boost;
     u.baseW = u.baseH * p.aspect;
     s.material.map = p.tex;
     s.material.needsUpdate = true;
@@ -410,12 +437,19 @@ function makeVerticalTextTexture(text, color) {
   const fontSize = 64;
   const pad = 38;
   const lineH = fontSize * 1.18;
-  const lines = text.split('\n');
+  // 纯中日韩文本(无换行标记的整句)自动逐字竖排,呈现完整的竖长条
+  const CJK_ONLY = /^[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af·]+$/;
+  let lines = [];
+  for (const seg of text.split('\n')) {
+    if (CJK_ONLY.test(seg) && seg.length > 2) lines.push(...seg.split(''));
+    else lines.push(seg);
+  }
   const measure = document.createElement('canvas').getContext('2d');
   measure.font = `bold ${fontSize}px "PingFang SC","Microsoft YaHei",system-ui,sans-serif`;
-  let maxW = 0;
+  let maxW = fontSize;
   for (const line of lines) maxW = Math.max(maxW, measure.measureText(line).width);
-  const w = fontSize + pad * 2;
+  // 关键修复:画布宽度按实际最宽行计算,任何名称都完整显示、不再裁切
+  const w = Math.ceil(maxW) + pad * 2;
   const h = lines.length * lineH + pad * 2;
   const c = document.createElement('canvas');
   c.width = w; c.height = h;
@@ -438,5 +472,6 @@ function makeVerticalTextTexture(text, color) {
   const tex = new THREE.CanvasTexture(c);
   tex.minFilter = THREE.LinearFilter;
   tex.needsUpdate = true;
+  tex.lineCount = lines.length;
   return tex;
 }
