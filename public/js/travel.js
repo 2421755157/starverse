@@ -1,38 +1,70 @@
 import * as THREE from 'three';
 import { buildGalaxy } from './galaxy.js';
 
-// 多语言名句 / 诗词:竖排文字如时光碎片,从隧道四周缓缓划过。
+// 地球文明符号:文字系统、世界建筑、文明符号、艺术与科学里程碑。
+// 竖排文字如时光碎片,从隧道四周缓缓划过,体现地球文明的多元与辉煌。
 const QUOTES = [
-  { text: '海上生明月\n天涯共此时', lang: '中文', color: '#8fd3ff' },
-  { text: '落霞与孤鹜齐飞\n秋水共长天一色', lang: '中文', color: '#ffd9a0' },
-  { text: '海内存知己\n天涯若比邻', lang: '中文', color: '#b6ff9e' },
-  { text: '人生若只如初见', lang: '中文', color: '#ff9ec4' },
-  { text: 'We are all in the gutter,\nbut some of us are looking at the stars', lang: 'English', color: '#9effe6' },
-  { text: 'To see a world\nin a grain of sand', lang: 'English', color: '#a8b6ff' },
-  { text: 'Two roads diverged\nin a wood', lang: 'English', color: '#c9a8ff' },
-  { text: 'Shall I compare thee\nto a summer’s day?', lang: 'English', color: '#ffe08a' },
-  { text: 'Je pense,\ndonc je suis', lang: 'Français', color: '#35e0ff' },
-  { text: 'La vie\nest ailleurs', lang: 'Français', color: '#ff4fd8' },
-  { text: 'Caminante, no hay camino,\nse hace camino al andar', lang: 'Español', color: '#b6ff9e' },
-  { text: 'El mundo\nes un libro', lang: 'Español', color: '#ffd9a0' },
-  { text: '古池や\n蛙飛びこむ\n水の音', lang: '日本語', color: '#8fe0e6' },
-  { text: '閑さや\n岩にしみ入る\n蝉の声', lang: '日本語', color: '#9effe6' },
-  { text: 'Я помню\nчудное мгновенье', lang: 'Русский', color: '#ff9ec4' },
-  { text: 'Быть или не быть\n— вот в чём вопрос', lang: 'Русский', color: '#a8b6ff' },
-  { text: '님은 먼 곳으로\n갔습니다', lang: '한국어', color: '#ffd9a0' },
-  { text: '산은 산이요\n물은 물이로다', lang: '한국어', color: '#8fd3ff' },
-  { text: 'Über allen Gipfeln\nist Ruh', lang: 'Deutsch', color: '#c9a8ff' },
-  { text: 'Der frühe Vogel\nfängt den Wurm', lang: 'Deutsch', color: '#b6ff9e' },
-  { text: 'Tutto il mondo\nè paese', lang: 'Italiano', color: '#ffe08a' },
-  { text: 'Sempre caro mi fu\nquest’ermo colle', lang: 'Italiano', color: '#ff9ec4' },
-  { text: 'اطلب العلم\nمن المهد إلى اللحد', lang: 'العربية', color: '#9effe6' },
-  { text: 'Γνῶθι\nσεαυτόν', lang: 'Ελληνικά', color: '#35e0ff' },
-  { text: 'A vida é feita\nde encontros', lang: 'Português', color: '#8fe0e6' },
-  { text: 'O tempo é\no melhor remédio', lang: 'Português', color: '#ffd9a0' }
+  // 文字系统
+  { text: '诗\n海\n星\n河', lang: '文字 · 中文', color: '#8fd3ff' },
+  { text: '梦\n光\n文\n明', lang: '文字 · 中文', color: '#ffd9a0' },
+  { text: 'A\nB\nC\nD\nE', lang: '文字 · 拉丁', color: '#9effe6' },
+  { text: 'L\nI\nG\nH\nT', lang: '文字 · 英文', color: '#a8b6ff' },
+  { text: 'ا\nب\nت\nث\nج', lang: '文字 · 阿拉伯', color: '#35e0ff' },
+  { text: 'α\nβ\nγ\nδ\nε', lang: '文字 · 希腊', color: '#ff4fd8' },
+  { text: 'あ\nい\nう\nえ\nお', lang: '文字 · 假名', color: '#8fe0e6' },
+  { text: 'А\nБ\nВ\nГ\nД', lang: '文字 · 西里尔', color: '#ff9ec4' },
+  { text: '가\n나\n다\n라\n마', lang: '文字 · 韩文', color: '#ffd9a0' },
+  { text: 'Ω\nΦ\nΨ\nΣ\nΠ', lang: '文字 · 希腊字母', color: '#c9a8ff' },
+
+  // 世界著名建筑
+  { text: '金字塔\n吉萨', lang: '建筑 · 埃及', color: '#ffe08a' },
+  { text: '埃菲尔\n铁塔', lang: '建筑 · 法国', color: '#ff9ec4' },
+  { text: '万里\n长城', lang: '建筑 · 中国', color: '#b6ff9e' },
+  { text: '泰姬陵', lang: '建筑 · 印度', color: '#9effe6' },
+  { text: '自由\n女神', lang: '建筑 · 美国', color: '#8fd3ff' },
+  { text: '悉尼\n歌剧院', lang: '建筑 · 澳洲', color: '#a8b6ff' },
+  { text: '罗马\n斗兽场', lang: '建筑 · 意大利', color: '#ffd9a0' },
+  { text: '比萨\n斜塔', lang: '建筑 · 意大利', color: '#35e0ff' },
+  { text: '巴黎\n圣母院', lang: '建筑 · 法国', color: '#c9a8ff' },
+  { text: '凯旋门', lang: '建筑 · 法国', color: '#ff4fd8' },
+  { text: '大本钟', lang: '建筑 · 英国', color: '#8fe0e6' },
+  { text: '布达拉\n宫', lang: '建筑 · 中国', color: '#ffe08a' },
+  { text: '圣家族\n大教堂', lang: '建筑 · 西班牙', color: '#b6ff9e' },
+  { text: '哈利法塔', lang: '建筑 · 迪拜', color: '#9effe6' },
+  { text: '金门\n大桥', lang: '建筑 · 美国', color: '#a8b6ff' },
+  { text: '吴哥窟', lang: '建筑 · 柬埔寨', color: '#ffd9a0' },
+
+  // 人类文明符号
+  { text: 'π\n3.14', lang: '符号 · 数学', color: '#35e0ff' },
+  { text: '∞\n永恒', lang: '符号 · 数学', color: '#ff4fd8' },
+  { text: 'Σ\n求和', lang: '符号 · 数学', color: '#8fd3ff' },
+  { text: '♪\n♫\n♬', lang: '符号 · 音乐', color: '#c9a8ff' },
+  { text: '⚛', lang: '符号 · 原子', color: '#9effe6' },
+  { text: '☯', lang: '符号 · 太极', color: '#b6ff9e' },
+  { text: '✡', lang: '符号 · 文明', color: '#ffd9a0' },
+  { text: '☪', lang: '符号 · 文明', color: '#8fe0e6' },
+  { text: '✝', lang: '符号 · 文明', color: '#a8b6ff' },
+  { text: '卍', lang: '符号 · 文明', color: '#ffe08a' },
+  { text: '0\n1\n0\n1', lang: '符号 · 二进制', color: '#ff9ec4' },
+  { text: '≈\n≡\n≠', lang: '符号 · 逻辑', color: '#8fd3ff' },
+
+  // 艺术与科学里程碑
+  { text: '蒙娜\n丽莎', lang: '艺术 · 达芬奇', color: '#9effe6' },
+  { text: '大卫', lang: '艺术 · 米开朗基罗', color: '#ffd9a0' },
+  { text: '星空', lang: '艺术 · 梵高', color: '#8fd3ff' },
+  { text: '向日葵', lang: '艺术 · 梵高', color: '#ffe08a' },
+  { text: 'E = mc²', lang: '科学 · 相对论', color: '#ff4fd8' },
+  { text: '万有\n引力', lang: '科学 · 牛顿', color: '#b6ff9e' },
+  { text: '元素\n周期表', lang: '科学 · 门捷列夫', color: '#35e0ff' },
+  { text: 'DNA\n双螺旋', lang: '科学 · 生命', color: '#c9a8ff' },
+  { text: '日心说', lang: '科学 · 哥白尼', color: '#a8b6ff' },
+  { text: '进化论', lang: '科学 · 达尔文', color: '#ff9ec4' },
+  { text: '哈姆\n雷特', lang: '文学 · 莎士比亚', color: '#8fe0e6' },
+  { text: '浮士德', lang: '文学 · 歌德', color: '#ffd9a0' }
 ];
 
-// 第一视角"时光飞船"穿越隧道:背景为科幻银河,可见飞船剪影,
-// 霓虹隧道环从远方飞来,地面网格向身后退去,竖排多语言名句从四周缓缓划过。
+  // 第一视角"时光飞船"穿越隧道:背景为科幻银河,可见飞船剪影,
+  // 霓虹隧道环从远方飞来,地面网格向身后退去,竖排地球文明符号从四周缓缓划过。
 // 约 14 秒后淡出并回调 onDone;点击任意处或按空格 / 回车可跳过。
 export function createTravel({ onDone } = {}) {
   const overlay = document.createElement('div');
@@ -46,7 +78,7 @@ export function createTravel({ onDone } = {}) {
       '<span class="tc-corner bl"></span><span class="tc-corner br"></span>' +
       '<span class="tc-reticle"></span>' +
     '</div>' +
-    '<div id="travel-caption"><span class="tc-kicker">时光飞船 · 穿越语言的星河</span><span class="tc-line"></span></div>' +
+    '<div id="travel-caption"><span class="tc-kicker">时光飞船 · 穿越文明的星河</span><span class="tc-line"></span></div>' +
     '<div id="travel-skip">点击任意处 · 跳过这段旅程</div>';
   document.body.appendChild(overlay);
   const canvas = overlay.querySelector('#travel-canvas');
